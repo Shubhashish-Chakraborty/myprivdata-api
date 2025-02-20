@@ -52,7 +52,6 @@ export const SignUp = async (req: Request, res: Response) => {
     }
 };
 
-
 export const SignIn = async (req: Request, res: Response) => {
     try {
         const { username, password } = req.body;
@@ -64,23 +63,22 @@ export const SignIn = async (req: Request, res: Response) => {
             return
         }
 
-        // Step 2: Compare the password
-        // const isPasswordValid = await bcrypt.compare(password, user.password);
-        const isPasswordValid = decrypt(user.password);
-        if (!isPasswordValid) {
+        // Step 2: Decrypt the stored password and compare it with input password
+        const decryptedPassword = decrypt(user.password);
+        if (decryptedPassword !== password) {
             res.status(401).json({ message: 'Invalid password' });
             return
         }
 
         // Step 3: Generate a JWT token
         const token = jwt.sign({ userId: user._id }, JWT_USER_SECRET, {
-            expiresIn: '1h', // Token expires in 1 hour
+            expiresIn: '1h',
         });
 
         // Step 4: Respond with the token
-        res.status(200).json({ message: `${user.fullName} successfully LoggedIn`, token });
-    } catch (err) {
-        res.status(500).json({ message: 'Server error', error: err });
+        res.status(200).json({ message: `${user.fullName} successfully Logged In`, token });
+    } catch (err:any) {
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 
